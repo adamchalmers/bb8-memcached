@@ -62,6 +62,18 @@ impl Connection {
         }
     }
 
+    /// Get up to `limit` keys which match the given prefix. Returns a HashMap from keys to found values. This is not part of the Memcached standard, but some servers implement it nonetheless. If `limit` is `None`, an unlimited number of results will be returned.
+    pub async fn get_prefix<'a, K: Display>(
+        &'a mut self,
+        key_prefix: &'a K,
+        limit: Option<usize>,
+    ) -> Result<HashMap<String, Vec<u8>>, io::Error> {
+        match self {
+            Connection::Unix(ref mut c) => c.get_prefix(key_prefix, limit).await,
+            Connection::Tcp(ref mut c) => c.get_prefix(key_prefix, limit).await,
+        }
+    }
+
     /// Delete a key
     pub async fn delete<'a, K: Display>(&'a mut self, key: &'a K) -> Result<(), io::Error> {
         match self {
